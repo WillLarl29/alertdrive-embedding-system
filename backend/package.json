@@ -1,0 +1,18 @@
+{
+  "name": "alertdrive-backend",
+  "version": "1.0.0",
+  "description": "Backend de monitoreo de AlertDrive - agrega el estado del ESP32-CAM y el flag de somnolencia del script Python, y sirve el dashboard web.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

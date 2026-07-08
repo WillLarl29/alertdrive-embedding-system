@@ -1,0 +1,4 @@
+.venv
+__pycache__
+*.pyc
+model/eye_cnn_best.pth.zip

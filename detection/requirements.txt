@@ -1,0 +1,9 @@
+torch
+torchvision
+opencv-python
+# mediapipe elimino la API legacy "solutions" (mp.solutions.face_mesh, usada por este
+# script) en las versiones >=0.10.30, y esa API nunca se compilo para Python >=3.13.
+# Fijar <=0.10.21 y usar un interprete Python 3.9-3.12 (ver README: detection/.venv).
+mediapipe<=0.10.21
+requests
+numpy
