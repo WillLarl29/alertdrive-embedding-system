@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AlertDrive — Monitoreo</title>
+  <meta name="description" content="Panel de monitoreo en tiempo real del sistema AlertDrive: somnolencia, calidad de aire y alcoholemia." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
@@ -16,7 +20,7 @@
       <div class="header-actions">
         <div class="demo-scenarios" id="demo-scenarios" hidden>
           <button class="scenario-btn" id="scenario-normal" type="button" data-active="true">Normal</button>
-          <button class="scenario-btn alert" id="scenario-alert" type="button" data-active="false">Riesgo detectado</button>
+          <button class="scenario-btn alert" id="scenario-alert" type="button" data-active="false">Riesgo</button>
         </div>
         <button class="chip demo-toggle" id="btn-demo-toggle" type="button" data-active="false">Modo demo</button>
         <span id="conn-chip" class="chip">
@@ -26,17 +30,23 @@
       </div>
     </header>
 
+    <!-- Banner de estado general -->
     <section class="hero-status" id="hero-status" data-status="idle">
       <span class="hero-icon" id="hero-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
       </span>
       <div class="hero-text">
         <div class="hero-title" id="hero-title">Sistema apagado</div>
-        <div class="hero-sub" id="hero-sub">Encendé el sistema en el dispositivo para empezar a monitorear</div>
+        <div class="hero-sub" id="hero-sub">Enciende el sistema en el dispositivo para empezar a monitorear</div>
+      </div>
+      <div class="hero-meta">
+        <span class="meta-tag" id="system-state-badge" data-on="false">APAGADO</span>
+        <span class="meta-ip" id="meta-ip">192.168.139.207</span>
       </div>
     </section>
 
     <div class="dashboard">
+      <!-- Columna izquierda: Video -->
       <div class="col-video">
         <div class="card video-panel">
           <h2>Cámara en vivo</h2>
@@ -51,95 +61,148 @@
         </div>
       </div>
 
+      <!-- Columna derecha: 4 módulos -->
       <div class="col-side">
-        <section class="grid">
-          <div class="card stat-tile" id="tile-system">
-            <div class="tile-head">
-              <span class="tile-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>
-              </span>
-              <span class="label">Sistema</span>
-            </div>
-            <div class="value" id="val-system">—</div>
-          </div>
-          <div class="card stat-tile" id="tile-drowsy">
-            <div class="tile-head">
-              <span class="tile-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
-              </span>
-              <span class="label">Somnolencia</span>
-            </div>
-            <div class="value" id="val-drowsy">—</div>
-          </div>
-          <div class="card stat-tile" id="tile-alcohol">
-            <div class="tile-head">
-              <span class="tile-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s7 7.58 7 12a7 7 0 0 1-14 0c0-4.42 7-12 7-12Z"/></svg>
-              </span>
-              <span class="label">Nivel de alcohol</span>
-            </div>
-            <div class="value" id="val-alcohol">—</div>
-          </div>
-          <div class="card stat-tile" id="tile-air">
-            <div class="tile-head">
-              <span class="tile-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h14a3 3 0 1 1-3 3"/><path d="M3 16h8"/></svg>
-              </span>
-              <span class="label">Calidad de aire</span>
-            </div>
-            <div class="value" id="val-air">—</div>
-          </div>
-        </section>
 
-        <div class="card meters-panel">
-          <h2>Sensores</h2>
-          <div class="meter" id="meter-alcohol">
-            <div class="meter-head">
-              <span class="meter-name">
-                MQ-3 · Alcohol
-                <button class="test-link" id="btn-test-mq3" type="button">Probar</button>
+        <!-- 1. MÓDULO SOMNOLENCIA -->
+        <div class="card module-card" id="module-drowsy">
+          <div class="module-header">
+            <div class="module-title-row">
+              <span class="module-icon drowsy-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
               </span>
-              <span class="meter-value"><span id="meter-alcohol-value">0</span> / <span id="meter-alcohol-max"></span></span>
+              <h2>Somnolencia</h2>
             </div>
-            <div class="meter-track"><div class="meter-fill" id="meter-alcohol-fill"></div></div>
-            <div class="meter-status" id="meter-alcohol-status">Sin datos</div>
+            <span class="status-pill" id="pill-drowsy" data-status="ok">Conductor Alerta</span>
           </div>
-          <div class="meter" id="meter-air">
-            <div class="meter-head">
-              <span class="meter-name">MQ-135 · Calidad de aire</span>
-              <span class="meter-value"><span id="meter-air-value">0</span> / <span id="meter-air-max"></span></span>
+          <div class="module-body two-col">
+            <div class="module-stat">
+              <span class="stat-label">Estado de Atención</span>
+              <div class="traffic-light" id="traffic-light" data-state="ok">
+                <span class="tl-dot green" id="tl-green"></span>
+                <span class="tl-dot red" id="tl-red"></span>
+              </div>
             </div>
-            <div class="meter-track"><div class="meter-fill" id="meter-air-fill"></div></div>
-            <div class="meter-status" id="meter-air-status">Sin datos</div>
-          </div>
-        </div>
-
-        <div class="card actuators-panel">
-          <h2>Actuadores</h2>
-          <div class="actuators">
-            <div class="actuator">
-              <span class="ind red" id="ind-led-red" data-on="false"></span>
-              <span class="name">LED rojo</span>
-              <span class="state" id="state-led-red">Apagado</span>
-            </div>
-            <div class="actuator">
-              <span class="ind green" id="ind-led-green" data-on="false"></span>
-              <span class="name">LED verde</span>
-              <span class="state" id="state-led-green">Apagado</span>
-            </div>
-            <div class="actuator">
-              <span class="ind neutral" id="ind-fan" data-on="false"></span>
-              <span class="name">Fan</span>
-              <span class="state" id="state-fan">Apagado</span>
-            </div>
-            <div class="actuator">
-              <span class="ind neutral" id="ind-buzzer" data-on="false"></span>
-              <span class="name">Buzzer</span>
-              <span class="state" id="state-buzzer">Apagado</span>
+            <div class="module-stat">
+              <span class="stat-label">Tiempo ojos cerrados</span>
+              <span class="stat-value mono" id="val-eye-timer">0.0 s</span>
             </div>
           </div>
         </div>
 
+        <!-- 2. MÓDULO CALIDAD DE AIRE (MQ-135) -->
+        <div class="card module-card" id="module-air">
+          <div class="module-header">
+            <div class="module-title-row">
+              <span class="module-icon air-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h14a3 3 0 1 1-3 3"/><path d="M3 16h8"/></svg>
+              </span>
+              <h2>Calidad de Aire · MQ-135</h2>
+            </div>
+            <span class="status-pill" id="pill-air" data-status="ok">Aire Óptimo</span>
+          </div>
+          <div class="module-body two-col">
+            <div class="module-stat">
+              <span class="stat-label">Voltaje del Sensor</span>
+              <span class="stat-value mono" id="val-air-mv">— mV</span>
+            </div>
+            <div class="module-stat">
+              <span class="stat-label">Estado de la Cabina</span>
+              <span class="stat-value" id="val-air-status">Sin datos</span>
+            </div>
+          </div>
+          <!-- Gráfico de líneas histórico -->
+          <div class="sparkline-wrap">
+            <canvas id="chart-air" height="48" aria-label="Histórico voltaje MQ-135"></canvas>
+            <span class="sparkline-label">Histórico mV (últimas lecturas)</span>
+          </div>
+        </div>
+
+        <!-- 3. MÓDULO ALCOHOLEMIA (MQ-3) -->
+        <div class="card module-card" id="module-alcohol">
+          <div class="module-header">
+            <div class="module-title-row">
+              <span class="module-icon alcohol-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s7 7.58 7 12a7 7 0 0 1-14 0c0-4.42 7-12 7-12Z"/></svg>
+              </span>
+              <h2>Alcoholemia · MQ-3</h2>
+            </div>
+            <span class="status-pill" id="pill-alcohol" data-status="idle">Esperando Muestreo</span>
+          </div>
+          <div class="module-body three-col">
+            <div class="module-stat">
+              <span class="stat-label">Estado del Test</span>
+              <span class="stat-value" id="val-mq3-state">Esperando muestreo</span>
+            </div>
+            <div class="module-stat">
+              <span class="stat-label">Resultado</span>
+              <span class="stat-value bold" id="val-mq3-verdict">—</span>
+            </div>
+            <div class="module-stat">
+              <span class="stat-label">Voltaje Máx. Registrado</span>
+              <span class="stat-value mono" id="val-mq3-max-mv">— mV</span>
+            </div>
+          </div>
+          <div class="mq3-actions">
+            <button class="btn-probar" id="btn-test-mq3" type="button">Iniciar prueba de alcohol</button>
+          </div>
+        </div>
+
+        <!-- 4. ESTADO GENERAL + Actuadores -->
+        <div class="card module-card" id="module-device">
+          <div class="module-header">
+            <div class="module-title-row">
+              <span class="module-icon device-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>
+              </span>
+              <h2>Estado del Dispositivo</h2>
+            </div>
+          </div>
+          <div class="module-body device-grid">
+            <div class="device-info">
+              <div class="device-row">
+                <span class="dr-label">Sistema</span>
+                <span class="dr-value bold" id="val-system">APAGADO</span>
+              </div>
+              <div class="device-row">
+                <span class="dr-label">IP ESP32</span>
+                <span class="dr-value mono" id="val-ip">192.168.139.207</span>
+              </div>
+              <div class="device-row">
+                <span class="dr-label">RSSI WiFi</span>
+                <span class="dr-value mono" id="val-rssi">— dBm</span>
+              </div>
+              <div class="device-row">
+                <span class="dr-label">Uptime</span>
+                <span class="dr-value mono" id="val-uptime">—</span>
+              </div>
+            </div>
+            <div class="actuators">
+              <div class="actuator">
+                <span class="ind red" id="ind-led-red" data-on="false"></span>
+                <span class="name">LED rojo</span>
+                <span class="state" id="state-led-red">Apagado</span>
+              </div>
+              <div class="actuator">
+                <span class="ind green" id="ind-led-green" data-on="false"></span>
+                <span class="name">LED verde</span>
+                <span class="state" id="state-led-green">Apagado</span>
+              </div>
+              <div class="actuator">
+                <span class="ind neutral" id="ind-fan" data-on="false"></span>
+                <span class="name">Fan</span>
+                <span class="state" id="state-fan">Apagado</span>
+              </div>
+              <div class="actuator">
+                <span class="ind neutral" id="ind-buzzer" data-on="false"></span>
+                <span class="name">Buzzer</span>
+                <span class="state" id="state-buzzer">Apagado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historial de alertas -->
         <div class="card alerts-panel">
           <h2>Historial de alertas</h2>
           <div class="alerts-scroll">
@@ -157,9 +220,10 @@
             </table>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+
+      </div><!-- /col-side -->
+    </div><!-- /dashboard -->
+  </div><!-- /page -->
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/gauges.js"></script>

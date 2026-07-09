@@ -20,14 +20,17 @@ function startEsp32Poller(io) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const status = await res.json();
 
-      systemState.updateFromEsp32(status);
+      // Pasamos la IP del ESP32 para mostrarla en el dashboard
+      systemState.updateFromEsp32(status, config.esp32Ip);
       const next = systemState.getState();
 
       checkTransition(io, "alcohol_alert", "Alcohol sobre umbral", prev, next, (s) => ({
         alcohol_raw: s.alcohol_raw,
+        alcohol_mv: s.alcohol_mv,
       }));
       checkTransition(io, "air_alert", "Calidad de aire degradada", prev, next, (s) => ({
         air_raw: s.air_raw,
+        air_mv: s.air_mv,
       }));
       checkTransition(io, "drowsy_alert", "Somnolencia detectada", prev, next, (s) => ({
         confidence: s.drowsy_confidence,
@@ -36,7 +39,7 @@ function startEsp32Poller(io) {
       io.emit("state", next);
     } catch (err) {
       if (prev.esp32_online) {
-        const alert = alertStore.addAlert("esp32_offline", { label: "Se perdió conexión con el ESP32-CAM" });
+        const alert = alertStore.addAlert("esp32_offline", { label: "Se perdió conexión con el ESP32" });
         io.emit("alert", alert);
       }
       systemState.markEsp32Offline();

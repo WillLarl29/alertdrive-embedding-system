@@ -8,11 +8,11 @@ module.exports = function drowsinessRouter(io) {
   const router = express.Router();
 
   router.post("/drowsiness", express.json(), (req, res) => {
-    const { status, confidence } = req.body || {};
+    const { status, confidence, eye_close_seconds } = req.body || {};
     const drowsy = status === "cerrado";
     const wasDrowsy = systemState.getState().drowsy_alert;
 
-    systemState.updateDrowsiness(drowsy, confidence ?? null);
+    systemState.updateDrowsiness(drowsy, confidence ?? null, eye_close_seconds ?? 0);
 
     if (drowsy && !wasDrowsy) {
       const alert = alertStore.addAlert("drowsy_alert", {
