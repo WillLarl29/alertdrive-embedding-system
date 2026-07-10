@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/dashboard.css?v=2" />
 </head>
 <body>
   <div class="page">
@@ -20,7 +20,9 @@
       <div class="header-actions">
         <div class="demo-scenarios" id="demo-scenarios" hidden>
           <button class="scenario-btn" id="scenario-normal" type="button" data-active="true">Normal</button>
-          <button class="scenario-btn alert" id="scenario-alert" type="button" data-active="false">Riesgo</button>
+          <button class="scenario-btn alert" id="scenario-somnolencia" type="button" data-active="false">Somnolencia</button>
+          <button class="scenario-btn alert" id="scenario-alcohol" type="button" data-active="false">Alcohol</button>
+          <button class="scenario-btn alert" id="scenario-aire" type="button" data-active="false">Aire</button>
         </div>
         <button class="chip demo-toggle" id="btn-demo-toggle" type="button" data-active="false">Modo demo</button>
         <span id="conn-chip" class="chip">
@@ -73,6 +75,7 @@
           <div class="card stat-tile" id="stat-drowsy" data-status="idle">
             <span class="label">Somnolencia</span>
             <span class="value" id="stat-drowsy-value">Normal</span>
+            <span class="tile-sub" id="stat-drowsy-sub"></span>
           </div>
           <div class="card stat-tile" id="stat-alcohol" data-status="idle">
             <span class="label">Nivel de alcohol</span>
@@ -91,6 +94,7 @@
             <div class="meter-head">
               <span class="meter-name">MQ-3 · Alcohol
                 <button class="test-link" id="btn-test-mq3" type="button">Probar</button>
+                <span class="verdict-badge" id="mq3-verdict" data-verdict="waiting">Sin probar</span>
               </span>
               <span class="meter-value" id="val-alcohol-raw">0 / 20000</span>
             </div>
@@ -158,9 +162,9 @@
   </div><!-- /page -->
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/gauges.js"></script>
-  <script src="/js/alerts-log.js"></script>
-  <script src="/js/demo.js"></script>
-  <script src="/js/socket-client.js"></script>
+  <script src="/js/gauges.js?v=2"></script>
+  <script src="/js/alerts-log.js?v=2"></script>
+  <script src="/js/demo.js?v=2"></script>
+  <script src="/js/socket-client.js?v=2"></script>
 </body>
 </html>

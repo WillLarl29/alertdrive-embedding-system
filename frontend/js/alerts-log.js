@@ -10,11 +10,18 @@ function fmtTime(iso) {
   return d.toLocaleTimeString("es-PE", { hour12: false });
 }
 
+function relTime(iso) {
+  const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (min < 1) return "justo ahora";
+  if (min < 60) return `hace ${min} min`;
+  return `hace ${Math.round(min / 60)} h`;
+}
+
 function alertRowHtml(a) {
   const label = ALERT_LABELS[a.type] || a.type;
   const detail = a.detail && a.detail.label ? a.detail.label : "";
   return `
-    <td class="time">${fmtTime(a.timestamp)}</td>
+    <td class="time" title="${relTime(a.timestamp)}">${fmtTime(a.timestamp)}</td>
     <td class="type" data-type="${a.type}"><span class="type-dot"></span>${label}</td>
     <td>${detail}</td>
   `;

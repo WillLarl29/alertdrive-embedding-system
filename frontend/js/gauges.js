@@ -65,6 +65,13 @@ function setStatTile(id, valueId, status, text) {
   setEl(valueId, text);
 }
 
+function drowsySubText(state) {
+  if (!state.system_on) return "";
+  if (state.drowsy_alert) return `${Number(state.eye_close_seconds || 0).toFixed(1)}s con ojos cerrados`;
+  if (state.drowsy_confidence != null) return `${Math.round(state.drowsy_confidence * 100)}% confianza`;
+  return "";
+}
+
 function renderStatRow(state) {
   setStatTile("stat-system", "stat-system-value",
     state.system_on ? "good" : "idle",
@@ -73,6 +80,7 @@ function renderStatRow(state) {
   setStatTile("stat-drowsy", "stat-drowsy-value",
     !state.system_on ? "idle" : state.drowsy_alert ? "critical" : "good",
     !state.system_on ? "Sin datos" : state.drowsy_alert ? "¡Alerta!" : "Normal");
+  setEl("stat-drowsy-sub", drowsySubText(state));
 
   setStatTile("stat-alcohol", "stat-alcohol-value",
     !state.system_on ? "idle" : state.alcohol_alert ? "critical" : "good",
@@ -85,11 +93,12 @@ function renderStatRow(state) {
 
 // ── Sensores (medidores MQ-3 / MQ-135) ───────────────────────────────────────
 
-function renderMeter({ rawId, fillId, statusId, raw, alert, systemOn, alertText }) {
+function renderMeter({ rawId, fillId, statusId, raw, mv, alert, systemOn, alertText }) {
   const raw2 = raw || 0;
+  const mv2  = mv || 0;
   const pct  = Math.min(100, (raw2 / METER_MAX_RAW) * 100);
 
-  setEl(rawId, `${raw2} / ${METER_MAX_RAW}`);
+  setEl(rawId, `${raw2} / ${METER_MAX_RAW} · ${mv2.toFixed(0)} mV`);
 
   const fill = document.getElementById(fillId);
   if (fill) {
@@ -105,17 +114,36 @@ function renderMeter({ rawId, fillId, statusId, raw, alert, systemOn, alertText 
   }
 }
 
+const MQ3_VERDICT_LABELS = {
+  waiting: "Sin probar",
+  testing: "Probando…",
+  pass: "Apto",
+  fail: "No apto",
+};
+
+function renderMq3Verdict(state) {
+  const el = document.getElementById("mq3-verdict");
+  if (!el) return;
+  const verdict = state.mq3_verdict || "waiting";
+  el.dataset.verdict = verdict;
+  el.textContent = verdict === "testing" && state.mq3_countdown_s
+    ? `${state.mq3_countdown_s}s restantes`
+    : (MQ3_VERDICT_LABELS[verdict] || verdict);
+}
+
 function renderMeters(state) {
   renderMeter({
     rawId: "val-alcohol-raw", fillId: "fill-alcohol", statusId: "status-alcohol",
-    raw: state.alcohol_raw, alert: state.alcohol_alert, systemOn: state.system_on,
+    raw: state.alcohol_raw, mv: state.alcohol_mv, alert: state.alcohol_alert, systemOn: state.system_on,
     alertText: "¡Alcohol detectado!",
   });
   renderMeter({
     rawId: "val-air-raw", fillId: "fill-air", statusId: "status-air",
-    raw: state.air_raw, alert: state.air_alert, systemOn: state.system_on,
+    raw: state.air_raw, mv: state.air_mv, alert: state.air_alert, systemOn: state.system_on,
     alertText: "Aire contaminado, ventilar",
   });
+
+  renderMq3Verdict(state);
 
   const btn = document.getElementById("btn-test-mq3");
   if (btn) {
