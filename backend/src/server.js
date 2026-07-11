@@ -13,6 +13,7 @@ const alertsRoute = require("./routes/alerts");
 const streamRoute = require("./routes/stream");
 const controlRoute = require("./routes/control");
 const drowsinessRoute = require("./routes/drowsiness");
+const frameRoute = require("./routes/frame");
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,6 +24,7 @@ app.use("/api", statusRoute);
 app.use("/api", alertsRoute);
 app.use("/api", controlRoute);
 app.use("/api", drowsinessRoute(io));
+app.use("/api", frameRoute);
 app.use(streamRoute);
 
 io.on("connection", (socket) => {
@@ -34,5 +36,5 @@ startEsp32Poller(io);
 
 httpServer.listen(config.port, () => {
   console.log(`AlertDrive backend escuchando en http://localhost:${config.port}`);
-  console.log(`Consultando ESP32-CAM en ${config.esp32ControlUrl} (video en ${config.esp32StreamUrl})`);
+  console.log(`Consultando ESP32 en ${config.esp32ControlUrl} (video: POST /api/frame desde detection/)`);
 });

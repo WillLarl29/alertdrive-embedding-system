@@ -1,26 +1,38 @@
 const express = require("express");
-const http = require("http");
-const config = require("../config");
+const frameBuffer = require("../state/frameBuffer");
 
 const router = express.Router();
 
-// GET /video - reenvia el stream MJPEG del ESP32-CAM para que el frontend
-// solo hable con el backend (mismo origen, sin problemas de CORS/mixed content).
+const BOUNDARY = "frame";
+
+// GET /video - reenvia como MJPEG los frames que empuja detection/*.py
+// (webcam local + POST /api/frame), asi el frontend solo habla con el
+// backend (mismo origen, sin problemas de CORS/mixed content).
 router.get("/video", (req, res) => {
-  // Sin timeout, un ESP32_IP inalcanzable (no "connection refused", sino sin
-  // respuesta) cuelga la conexion TCP por decenas de segundos.
-  const upstream = http.get(config.esp32StreamUrl, { timeout: 3000 }, (upstreamRes) => {
-    res.writeHead(upstreamRes.statusCode, upstreamRes.headers);
-    upstreamRes.pipe(res);
+  if (!frameBuffer.isFresh()) {
+    res.status(502).send("Camara no disponible");
+    return;
+  }
+
+  res.writeHead(200, {
+    "Content-Type": `multipart/x-mixed-replace; boundary=${BOUNDARY}`,
+    "Cache-Control": "no-cache, private",
+    Connection: "close",
+    Pragma: "no-cache",
   });
 
-  upstream.on("timeout", () => upstream.destroy(new Error("timeout")));
+  const writeFrame = (buf) => {
+    res.write(`--${BOUNDARY}\r\nContent-Type: image/jpeg\r\nContent-Length: ${buf.length}\r\n\r\n`);
+    res.write(buf);
+    res.write("\r\n");
+  };
 
-  upstream.on("error", () => {
-    if (!res.headersSent) res.status(502).send("ESP32-CAM no disponible");
+  writeFrame(frameBuffer.getFrame());
+  frameBuffer.emitter.on("frame", writeFrame);
+
+  req.on("close", () => {
+    frameBuffer.emitter.off("frame", writeFrame);
   });
-
-  req.on("close", () => upstream.destroy());
 });
 
 module.exports = router;

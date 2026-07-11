@@ -1,8 +1,5 @@
 // gauges.js — Renderiza el estado del sistema en el dashboard.
-// Umbrales deben coincidir con el firmware AlertDrive_ESP32.ino
-const UMBRAL_ALCOHOL_RAW = 1500;   // unidades ADC
-const UMBRAL_AIRE_RAW    = 3000;   // unidades ADC
-const METER_MAX_RAW      = 20000;  // escala visual de las barras (no es el maximo fisico del ADC)
+const METER_MAX_RAW = 20000;  // escala visual de las barras (no es el maximo fisico del ADC)
 
 const ICON_OK    = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>';
 const ICON_ALERT = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="m10.3 3.6-8 14A1.5 1.5 0 0 0 3.6 20h16.8a1.5 1.5 0 0 0 1.3-2.4l-8-14a1.5 1.5 0 0 0-2.6 0Z"/><path d="M12 17h.01"/></svg>';

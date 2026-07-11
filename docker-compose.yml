@@ -6,7 +6,6 @@ services:
       - "3000:3000"
     environment:
       ESP32_IP: ${ESP32_IP:-192.168.139.207}
-      ESP32_STREAM_PORT: "81"
       ESP32_CONTROL_PORT: "80"
       POLL_INTERVAL_MS: "1500"
       PORT: "3000"
@@ -23,15 +22,9 @@ services:
       - backend
     restart: unless-stopped
 
-  detection:
-    build:
-      context: ./detection
-    environment:
-      ESP32_IP: ${ESP32_IP:-192.168.139.207}
-      BACKEND_URL: http://backend:3000/api/drowsiness
-    depends_on:
-      - backend
-    restart: unless-stopped
+# La deteccion (detection/deteccion_dashboard.py) corre directo en Windows,
+# NO en Docker: necesita la webcam local de la laptop, y un contenedor Linux
+# en Docker Desktop/WSL2 no tiene forma nativa de acceder a ese dispositivo.
 
 volumes:
   alertdrive_alerts:
