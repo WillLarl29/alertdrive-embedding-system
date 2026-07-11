@@ -1,7 +1,0 @@
-# Igual que requirements.txt, pero con opencv-python-headless (no hay pantalla
-# dentro del contenedor) y sin torch/torchvision (se instalan aparte en el
-# Dockerfile desde el indice CPU-only de PyTorch para evitar arrastrar CUDA).
-opencv-python-headless
-mediapipe<=0.10.21
-requests
-numpy
