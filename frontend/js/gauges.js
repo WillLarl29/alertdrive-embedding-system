@@ -191,7 +191,9 @@ function renderVideoAvailability(online) {
 
 function renderState(state) {
   renderConnection(state);
-  renderVideoAvailability(!!state.esp32_online);
+  // La disponibilidad del video NO depende de esp32_online: la camara es un
+  // proceso independiente (webcam + script Python), no el ESP32. Se controla
+  // solo por los eventos load/error del <img> en socket-client.js.
   renderHero(state);
   renderStatRow(state);
   renderMeters(state);

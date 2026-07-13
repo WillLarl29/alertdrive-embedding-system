@@ -38,6 +38,10 @@ IMG_SIZE        = 64
 MODEL_PATH      = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model", "eye_cnn_best.pth")
 FRAME_INTERVAL  = 0.1   # ~10 fps hacia el dashboard, no satura el backend
 
+# Por default NO abre ventana local: todo se ve en el dashboard web
+# (http://localhost:8080). Poner SHOW_WINDOW=1 para volver a abrirla.
+SHOW_WINDOW = os.environ.get("SHOW_WINDOW", "0") == "1"
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando: {DEVICE}")
 
@@ -142,7 +146,10 @@ def main():
         print("ERROR: no se pudo abrir la webcam.")
         return
 
-    print("Camara abierta. Presiona Q en la ventana para salir.")
+    if SHOW_WINDOW:
+        print("Camara abierta. Presiona Q en la ventana para salir.")
+    else:
+        print("Camara abierta (sin ventana local). Ctrl+C para salir. Mirala en http://localhost:8080")
     closed_since = None
     alarma_activa = False
     ultimo_envio_frame = 0.0
@@ -210,20 +217,22 @@ def main():
                                           confianza, eye_close_seconds)
 
             cv2.putText(frame, estado, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
-            cv2.imshow("Deteccion Somnolencia (dashboard) - Q para salir", frame)
 
             ahora = time.time()
             if ahora - ultimo_envio_frame >= FRAME_INTERVAL:
                 enviar_frame(frame)
                 ultimo_envio_frame = ahora
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            if SHOW_WINDOW:
+                cv2.imshow("Deteccion Somnolencia (dashboard) - Q para salir", frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
     except KeyboardInterrupt:
         print("Interrumpido por el usuario")
     finally:
         cap.release()
-        cv2.destroyAllWindows()
+        if SHOW_WINDOW:
+            cv2.destroyAllWindows()
         face_mesh.close()
         enviar_ok()
         print("Finalizado")

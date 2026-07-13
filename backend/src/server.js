@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const config = require("./config");
 const systemState = require("./state/systemState");
 const alertStore = require("./services/alertStore");
+const frameBuffer = require("./state/frameBuffer");
 const { startEsp32Poller } = require("./services/esp32Poller");
 
 const statusRoute = require("./routes/status");
@@ -30,7 +31,21 @@ app.use(streamRoute);
 io.on("connection", (socket) => {
   socket.emit("state", systemState.getState());
   socket.emit("alerts", alertStore.getRecent(50));
+  socket.emit("video_status", { available: frameBuffer.isFresh() });
 });
+
+// El <img> del frontend no puede confiar en sus propios eventos load/error
+// para un stream multipart (muchos navegadores nunca disparan "load" en un
+// stream que no termina nunca); el backend es quien sabe con certeza si hay
+// frames frescos, asi que empuja el estado por socket.
+let videoAvailable = false;
+setInterval(() => {
+  const fresh = frameBuffer.isFresh();
+  if (fresh !== videoAvailable) {
+    videoAvailable = fresh;
+    io.emit("video_status", { available: videoAvailable });
+  }
+}, 1000);
 
 startEsp32Poller(io);
 
